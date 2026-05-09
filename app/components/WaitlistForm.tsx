@@ -5,7 +5,7 @@ import { addToWaitlist } from "../actions/waitlist";
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState<string>("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "duplicate">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -15,6 +15,8 @@ export default function WaitlistForm() {
 
     if (result.success) {
       setStatus("success");
+    } else if (result.error === "already_registered") {
+      setStatus("duplicate");
     } else {
       setStatus("error");
     }
@@ -28,9 +30,20 @@ export default function WaitlistForm() {
     );
   }
 
+  if (status === "duplicate") {
+    return (
+      <p className="text-blue-600 font-medium">
+        Вы уже в списке — скоро напишем!
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-2">
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto"
+      >
         <input
           type="email"
           required
@@ -49,7 +62,9 @@ export default function WaitlistForm() {
         </button>
       </form>
       {status === "error" && (
-        <p className="text-red-500 text-sm text-center">Что-то пошло не так. Попробуйте ещё раз.</p>
+        <p className="text-red-500 text-sm text-center">
+          Что-то пошло не так. Попробуйте ещё раз.
+        </p>
       )}
     </div>
   );
